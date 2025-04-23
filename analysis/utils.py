@@ -13,8 +13,8 @@ def aggregate_llm_attention(attn):
     '''Extract average attention vector'''
     avged = []
     for layer in attn:
-        layer_attns = layer.squeeze(0)
-        attns_per_head = layer_attns.mean(dim=0)
+        layer_attns = layer.squeeze(0) # shape: torch.Size([32, 1, 594])  (heads, query, key)
+        attns_per_head = layer_attns.mean(dim=0) # shape: torch.Size([1, 594]) (query, key)
         vec = torch.concat((
             # We zero the first entry because it's what's called
             # null attention (https://aclanthology.org/W19-4808.pdf)
@@ -29,7 +29,7 @@ def aggregate_llm_attention(attn):
             torch.tensor([0.]),
         ))
         avged.append(vec / vec.sum())
-    return torch.stack(avged).mean(dim=0)
+    return torch.stack(avged).mean(dim=0) # shape: torch.Size([595])
 
 
 def aggregate_vit_attention(attn, select_layer=-2, all_prev_layers=True):
